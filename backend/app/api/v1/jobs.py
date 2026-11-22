@@ -87,10 +87,10 @@ def preview_criteria(body: CriteriaPreviewIn, user: CompanyUser):
     return jd_service.preview(body)
 
 
-@router.post("/poster-text", response_model=PosterTextOut, summary="Extract editable Korean/English text from a hiring poster")
+@router.post("/poster-text", response_model=PosterTextOut, summary="Extract editable text from a hiring poster or PDF (never stored)")
 async def poster_text(file: UploadFile, user: CompanyUser):
-    image = await file.read(poster_service.MAX_IMAGE_BYTES + 1)
-    return PosterTextOut(text=poster_service.extract_text(image, file.content_type))
+    data = await file.read(poster_service.MAX_UPLOAD_BYTES + 1)
+    return PosterTextOut(text=poster_service.extract_text(data, file.content_type))
 
 
 @router.get("/{job_id}", response_model=JobOut, summary="Job detail; no login needed (guests: published, unexpired; owner also sees drafts and closed jobs)")
