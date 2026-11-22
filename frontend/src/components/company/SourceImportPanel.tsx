@@ -5,7 +5,7 @@ import { AiBusy, AiMark } from '@/components/common/Ai';
 import ui from '@/components/common/ui.module.css';
 import type { CriteriaPreviewOut, SourceType } from '@/types/job';
 
-/** Internal specifications and OCR text remain unsaved unless the recruiter explicitly saves criteria. */
+/** Uploaded source files and extracted text remain unsaved unless the recruiter explicitly saves criteria. */
 export default function SourceImportPanel({
   title,
   minExperienceYears,
@@ -26,7 +26,6 @@ export default function SourceImportPanel({
     setBusy('ocr');
     try {
       const extracted = await api.extractPosterText(file);
-      setSourceType('job_posting');
       setSourceText(extracted.text);
     } catch (e) {
       setError(e);
@@ -67,17 +66,17 @@ export default function SourceImportPanel({
           </select>
         </label>
         <label className={ui.field}>
-          <span>채용공고 포스터 이미지 (PNG·JPEG, 5MB 이하)</span>
-          <input type="file" accept="image/png,image/jpeg" disabled={busy !== null}
+          <span>채용공고·프로젝트 기술서 파일 (PNG·JPEG·PDF, 5MB 이하 / PDF 최대 5페이지)</span>
+          <input type="file" accept="image/png,image/jpeg,application/pdf" disabled={busy !== null}
             onChange={(e) => { void recognize(e.target.files?.[0]); e.target.value = ''; }} />
         </label>
         <label className={ui.field}>
-          <span>분석할 텍스트 — 포스터에서 추출한 내용은 분석 전에 수정할 수 있습니다</span>
+          <span>분석할 텍스트 — 이미지·PDF에서 추출한 내용도 분석 전에 수정할 수 있습니다</span>
           <textarea className={ui.textarea} rows={7} maxLength={10000} value={sourceText}
             onChange={(e) => setSourceText(e.target.value)}
             placeholder="채용공고나 프로젝트 기술서를 붙여넣으세요." />
         </label>
-        {busy && <AiBusy>{busy === 'ocr' ? '포스터에서 텍스트를 추출하는 중…' : '평가 기준과 가중치를 분석하는 중…'}</AiBusy>}
+        {busy && <AiBusy>{busy === 'ocr' ? '파일에서 텍스트를 추출하는 중…' : '평가 기준과 가중치를 분석하는 중…'}</AiBusy>}
         {error != null && <p role="alert" className={ui.notice}>{errorText(error)}</p>}
         <button type="button" className={ui.btn} disabled={busy !== null || !sourceText.trim()} onClick={() => void analyze()}>
           평가 기준·가중치 추천
