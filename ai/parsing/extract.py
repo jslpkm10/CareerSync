@@ -428,6 +428,32 @@ def analyze_jd_rules(title: str, text: str, min_years: int | None, skills: Skill
     )
     requirements = extract_requirements(text)
     criteria = criteria_from_requirements(requirements) or suggest_criteria(profile)
+    if "required" in sections and required and requirements:
+        # Keep explicitly required technologies as separate, high-priority criteria.
+        # Broad bullet labels (e.g. "project experience") must not erase Java/Spring.
+        explicit_skills = []
+        for skill in required[:3]:
+            source_requirement = next(
+                (r for r in requirements if r.kind == "required" and skill.casefold() in r.source.casefold()),
+                None,
+            )
+            if source_requirement:
+                explicit_skills.append(SuggestedCriterion(
+                    name=f"{skill} 활용 능력"[:50],
+                    description=source_requirement.text,
+                    category="skill",
+                    weight=5,
+                    source=source_requirement.source,
+                    reason="공고의 필수 조건",
+                ))
+        if explicit_skills:
+            known = {item.name for item in explicit_skills}
+            priority = {"공고의 필수 조건": 5, "담당업무에 명시됨": 3, "공고의 우대 조건": 2}
+            rest = [
+                item.model_copy(update={"weight": priority.get(item.reason, 1)})
+                for item in criteria if item.name not in known
+            ]
+            criteria = fix_weights((explicit_skills + rest)[:10])
     return JdAnalysis(profile=profile, criteria=criteria, requirements=requirements)
 
 
