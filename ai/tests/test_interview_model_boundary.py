@@ -205,6 +205,7 @@ EXPECTED_CALLERS = {  # every file that refers to `complete_json`, with its reas
     "ai/scoring/scorers.py",  # the existing seeker features (D21, D24, D25, structuring, scoring): unchanged, Q24 applies
     "ai/interview/boundary.py",  # the interview's one call, `ask`
     "ai/career/verification.py",  # recruiter CV-verification questions (main PR #30, D85): no interview data, the cleaned masked CV only
+    "backend/app/services/job_document_service.py",  # JD PDF scope discovery: company source text only, no interview data
 }
 EXPECTED_RUNTIME_USERS = {  # backend services that take the model client from `ai_runtime.llm()`
     "backend/app/services/career_service.py", "backend/app/services/cv_review_service.py", "backend/app/services/cv_service.py",
